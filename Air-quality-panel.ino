@@ -17,7 +17,7 @@
 
 #include <esp_sleep.h>    // For deep sleep
 
-//#include "bitmap.h"   // Background image
+#include "image.h"   // Background image
 
 EPaper epaper;
 
@@ -62,6 +62,71 @@ bool connectWiFi(uint32_t timeoutMs) {
   return WiFi.status() == WL_CONNECTED;
 }
 
+String getHAState(String entity_id) {
+  if (WiFi.status() != WL_CONNECTED) {
+    Serial.println("WiFi not connected");
+    return "";
+  }
+
+  WiFiClient client;
+  HTTPClient http;
+
+  String url = "http://192.168.100.142:8123/api/states/" + entity_id;
+
+  Serial.println();
+  Serial.print("Requesting: ");
+  Serial.println(url);
+
+  http.setTimeout(1000); // 1 seconds
+
+  if (!http.begin(client, url)) {
+    Serial.println("http.begin() failed");
+    return "";
+  }
+
+  http.addHeader("Authorization", String("Bearer ") + Token);
+  http.addHeader("Content-Type", "application/json");
+
+  //Serial.println (String("Bearer ")+Token);
+  
+  int httpCode = http.GET();
+
+  Serial.print("HTTP code: ");
+  Serial.println(httpCode);
+
+  if (httpCode != HTTP_CODE_OK) {
+    String errBody = http.getString();
+    Serial.println("Error body:");
+    Serial.println(errBody.substring(0, 200));
+
+    http.end();
+    return "";
+  }
+
+  String payload = http.getString();
+
+  Serial.print("Payload length: ");
+  Serial.println(payload.length());
+
+  http.end();
+
+  JsonDocument doc;
+
+  DeserializationError error = deserializeJson(doc, payload);
+
+  if (error) {
+    Serial.print("JSON parse error: ");
+    Serial.println(error.c_str());
+    return "";
+  }
+
+  String value = doc["state"].as<String>();
+
+  Serial.print("State value: ");
+  Serial.println(value);
+
+  return value;
+}
 
 void setup() {
   Serial.begin(115200);
@@ -80,15 +145,17 @@ void setup() {
   // Configure and initialize display
   epaper.begin();
   epaper.fillScreen(TFT_WHITE);          // Clear screen
-  epaper.setFreeFont(&Yellowtail_32);    // Select font
+  epaper.setTextFont (6); 
+  //epaper.setFreeFont(&Yellowtail_32);    // Select font
   epaper.setRotation(0);            
   epaper.setTextDatum(MC_DATUM);         // Set centered alignment
 
   epaper.setTextSize (1);
-  epaper.drawString ("Air Quality ", epaper.width()/2,50);
+  //epaper.drawString ("Air Quality ", epaper.width()/2,50);
 
   // Load background image
-  //epaper.drawBitmap(0, 0, holidayBack, 648, 480, TFT_BLACK);
+  epaper.drawBitmap(0, 0, background, 800, 480, TFT_BLACK);
+  //epaper.pushImage (0,0, 800, 480, (uint16_t *) background);
 
   // Show everything
   epaper.update ();
@@ -99,6 +166,7 @@ void setup() {
   //WiFiClientSecure client;
   //client.setInsecure(); // Encrypted HTTPS, certificate not validated
 
+ /*
   WiFiClient client;
 
   HTTPClient http;
@@ -145,12 +213,27 @@ void setup() {
   }
 
   float ppm = doc["state"];
+*/
 
-  Serial.print ("CO2: ");
-  Serial.println (ppm);
+String temp = getHAState("sensor.calidad_de_aire_temperature");
+String hum  = getHAState("sensor.calidad_de_aire_humidity");
+String co2  = getHAState("sensor.calidad_de_aire_carbon_dioxide");
+String hcho = getHAState("sensor.calidad_de_aire_formaldehyde");
+String voc  = getHAState("sensor.calidad_de_aire_volatile_organic_compounds");
 
-  epaper.drawNumber (ppm,20, 100);
-  epaper.drawString ("ppm",90,100 );
+
+  //Serial.print ("CO2: ");
+  //Serial.println (ppm);
+
+  //Ojo, si se produce un error http en las llamadas de arriba, se resetea el micro.
+  //Falta alguna comprobacion
+  
+
+  epaper.drawString (temp, 92, 260);
+  epaper.drawString (hum,  244, 260 );
+  epaper.drawString (co2,  400, 260);
+  epaper.drawString (hcho, 556, 260 );
+  epaper.drawString (voc,  710, 260 );
   epaper.update ();
 
 /*
