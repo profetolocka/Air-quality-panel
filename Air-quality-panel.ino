@@ -25,6 +25,11 @@ EPaper epaper;
 const char* ssid = "LosToloNetwork";
 const char* password = "performance15";
 
+// Rangos OK y No OK
+#define TEMP_MAX 26
+#define TEMP_MIN 20
+
+
 
 // Token provisto por Home Assistant
 const char* Token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJlMmU2N2EzZDIyYjQ0ODU0YjA4ODYyZjg5ZDQwYzYyNSIsImlhdCI6MTc3ODk3MTAzMSwiZXhwIjoyMDk0MzMxMDMxfQ.UjmFtAjzu8UAGPmgjcGxcvusNUAwr422tri7F2RSYWg"; 
@@ -157,6 +162,9 @@ void setup() {
   epaper.drawBitmap(0, 0, background, 800, 480, TFT_BLACK);
   //epaper.pushImage (0,0, 800, 480, (uint16_t *) background);
 
+
+
+
   // Show everything
   epaper.update ();
 
@@ -221,19 +229,33 @@ String co2  = getHAState("sensor.calidad_de_aire_carbon_dioxide");
 String hcho = getHAState("sensor.calidad_de_aire_formaldehyde");
 String voc  = getHAState("sensor.calidad_de_aire_volatile_organic_compounds");
 
-
-  //Serial.print ("CO2: ");
-  //Serial.println (ppm);
-
   //Ojo, si se produce un error http en las llamadas de arriba, se resetea el micro.
   //Falta alguna comprobacion
   
+  //Test
+  temp = "19";
 
   epaper.drawString (temp, 92, 260);
   epaper.drawString (hum,  244, 260 );
   epaper.drawString (co2,  400, 260);
   epaper.drawString (hcho, 556, 260 );
   epaper.drawString (voc,  710, 260 );
+
+
+  //Verificar rangos
+
+if (temp.toFloat() > TEMP_MAX || temp.toFloat() < TEMP_MIN) {
+  // No OK: temperatura alta o baja
+    epaper.drawBitmap (65,353, Bitmap_NOK, 60, 60, TFT_BLACK);
+
+} else {
+  // OK
+    epaper.drawBitmap (65, 353, Bitmap_OK, 60, 60, TFT_BLACK);
+
+}
+
+  //epaper.drawBitmap (215,353, Bitmap_NOK, 60, 60, TFT_BLACK);
+
   epaper.update ();
 
 /*
