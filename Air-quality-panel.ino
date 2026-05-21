@@ -229,9 +229,9 @@ String voc  = getHAState("sensor.calidad_de_aire_volatile_organic_compounds");
   //Test
   temp = "19";
 
-  epaper.drawString (temp, 92, 290);
+  epaper.drawString (temp, 90, 290);
   epaper.drawString (hum,  244, 290 );
-  epaper.drawString (co2,  400, 290);
+  epaper.drawNumber (co2.toInt(),  398, 290);
   epaper.drawString (hcho, 556, 290 );
   epaper.drawString (voc,  710, 290 );
 
