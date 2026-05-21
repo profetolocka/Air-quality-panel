@@ -156,66 +156,13 @@ void setup() {
   epaper.drawBitmap(0, 0, background, 800, 480, TFT_BLACK);
   //epaper.pushImage (0,0, 800, 480, (uint16_t *) background);
 
-
-
-
   // Show everything
   epaper.update ();
 
   
   // Access Home Assistant REST API
 
-  //WiFiClientSecure client;
-  //client.setInsecure(); // Encrypted HTTPS, certificate not validated
-
- /*
-  WiFiClient client;
-
-  HTTPClient http;
-
-  if (!http.begin(client, endpoint)) {
-    Serial.println("http.begin() failed");
-    sleepSeconds (300);
-    return;    // Only for clarity
-  }
-
-  // Headers para Home Assistant
-  http.addHeader("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJlMmU2N2EzZDIyYjQ0ODU0YjA4ODYyZjg5ZDQwYzYyNSIsImlhdCI6MTc3ODk3MTAzMSwiZXhwIjoyMDk0MzMxMDMxfQ.UjmFtAjzu8UAGPmgjcGxcvusNUAwr422tri7F2RSYWg");
-  http.addHeader("Content-Type", "application/json");
-
-  int httpCode = http.GET();
-  Serial.printf("HTTP code: %d\n", httpCode);
-
-  if (httpCode != HTTP_CODE_OK) {
-    Serial.println("Server response (first 200 chars):");
-    String errBody = http.getString();
-    Serial.println(errBody.substring(0, 200));
-    http.end();
-    
-    sleepSeconds (300);
-    return;    // Only for clarity
-  }
-
-  // Download the entire JSON
-  String payload = http.getString();
-  http.end();
-
-  Serial.printf("Payload length: %d bytes\n", payload.length());
-
-  JsonDocument doc;
-
-  DeserializationError error = deserializeJson(doc, payload);
-
-  if (error) {
-    Serial.print("Error parsing JSON: ");
-    Serial.println(error.c_str());
-
-    sleepSeconds (300);
-    return;    // Only for clarity
-  }
-
-  float ppm = doc["state"];
-*/
+// Debería leer 3 veces y si aun asi no lee nada, mostrar "-"
 
 String temp = getHAState("sensor.calidad_de_aire_temperature");
 String hum  = getHAState("sensor.calidad_de_aire_humidity");
