@@ -23,11 +23,11 @@ EPaper epaper;
 const char* ssid = "LosToloNetwork";
 const char* password = "performance15";
 
-// Tiempo de actualizacion
+// Refresh time
 const int RefreshTime = 15;
 
-// Token provisto por Home Assistant
-const char* Token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJlMmU2N2EzZDIyYjQ0ODU0YjA4ODYyZjg5ZDQwYzYyNSIsImlhdCI6MTc3ODk3MTAzMSwiZXhwIjoyMDk0MzMxMDMxfQ.UjmFtAjzu8UAGPmgjcGxcvusNUAwr422tri7F2RSYWg"; 
+// Token provided by Home Assistant
+const char* Token = "PASTE_YOUR_HOME_ASSISTANT_LONG_LIVED_ACCESS_TOKEN_HERE"; 
 
 // Function to put the ESP32 into deep sleep
 void sleepSeconds (uint32_t s) {
@@ -56,8 +56,8 @@ bool connectWiFi(uint32_t timeoutMs) {
   Serial.println();
   return WiFi.status() == WL_CONNECTED;
 }
-// Function to get states from HA
 
+// Function to get states from Home Assistant
 String getHAState(String entity_id) {
   if (WiFi.status() != WL_CONNECTED) {
     Serial.println("Error! WiFi not connected");
@@ -134,8 +134,6 @@ void setup() {
   }
   Serial.println("WiFi connected!");
 
-
-
   // Configure and initialize display
   epaper.begin();
   epaper.fillScreen(TFT_WHITE);          // Clear screen
@@ -151,10 +149,9 @@ void setup() {
   // Show everything
   epaper.update ();
 
-  
   // Access Home Assistant REST API
 
-// Debería leer 3 veces y si aun asi no lee nada, mostrar "-"
+  // It should try to read 3 times, and if it still cannot read anything, display "-"
 
   String temp = getHAState("sensor.calidad_de_aire_temperature");
   String hum  = getHAState("sensor.calidad_de_aire_humidity");
@@ -162,10 +159,10 @@ void setup() {
   String hcho = getHAState("sensor.calidad_de_aire_formaldehyde");
   String voc  = getHAState("sensor.calidad_de_aire_volatile_organic_compounds");
 
-  //Ojo, si se produce un error http en las llamadas de arriba, se resetea el micro.
-  //Falta alguna comprobacion
+  // Warning: if an HTTP error occurs in the calls above, the microcontroller resets.
+  // Some kind of check is still missing.
   
-  //Test
+  // Test
   //temp = "19";
 
   epaper.drawString (temp, 90, 290);
@@ -176,14 +173,12 @@ void setup() {
 
   epaper.update ();
 
-  
   Serial.println ("Going to sleep...");
 
   // Delay to allow access from the IDE if necessary.
   delay (10000);
 
   sleepSeconds (RefreshTime * 60);
-
 }
 
 void loop() {
