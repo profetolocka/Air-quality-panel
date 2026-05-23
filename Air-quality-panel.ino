@@ -57,8 +57,8 @@ bool connectWiFi(uint32_t timeoutMs) {
 
 String getHAState(String entity_id) {
   if (WiFi.status() != WL_CONNECTED) {
-    Serial.println("WiFi not connected");
-    return "";
+    Serial.println("Error! WiFi not connected");
+    return "--";
   }
 
   WiFiClient client;
@@ -70,17 +70,15 @@ String getHAState(String entity_id) {
   Serial.print("Requesting: ");
   Serial.println(url);
 
-  http.setTimeout(1000); // 1 seconds
+  http.setTimeout(5000); // 5 seconds
 
   if (!http.begin(client, url)) {
-    Serial.println("http.begin() failed");
-    return "";
+    Serial.println("Error! http.begin() failed");
+    return "--";
   }
 
   http.addHeader("Authorization", String("Bearer ") + Token);
   http.addHeader("Content-Type", "application/json");
-
-  //Serial.println (String("Bearer ")+Token);
   
   int httpCode = http.GET();
 
@@ -93,7 +91,7 @@ String getHAState(String entity_id) {
     Serial.println(errBody.substring(0, 200));
 
     http.end();
-    return "";
+    return "--";
   }
 
   String payload = http.getString();
@@ -110,7 +108,7 @@ String getHAState(String entity_id) {
   if (error) {
     Serial.print("JSON parse error: ");
     Serial.println(error.c_str());
-    return "";
+    return "--";
   }
 
   String value = doc["state"].as<String>();
@@ -124,7 +122,7 @@ String getHAState(String entity_id) {
 void setup() {
   Serial.begin(115200);
 
-  Serial.println ("Starting..");
+  Serial.println ("\nStarting..");
 
   if (!connectWiFi(30000)) {
     Serial.println("WiFi did not connect. Going to sleep for 5 min.");
@@ -139,7 +137,6 @@ void setup() {
   epaper.begin();
   epaper.fillScreen(TFT_WHITE);          // Clear screen
   epaper.setTextFont (6); 
-  //epaper.setFreeFont(&Yellowtail_32);    // Select font
   epaper.setRotation(0);            
   epaper.setTextDatum(MC_DATUM);         // Set centered alignment
 
@@ -175,6 +172,14 @@ void setup() {
   epaper.drawString (voc,  710, 290 );
 
   epaper.update ();
+
+  
+  Serial.println ("Going to sleep...");
+
+  // Delay to allow access from the IDE if necessary.
+  delay (10000);
+
+  sleepSeconds (900);  // 15 minutes
 
 }
 
