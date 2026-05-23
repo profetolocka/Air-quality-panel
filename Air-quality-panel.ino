@@ -10,9 +10,7 @@
 #include <WiFi.h>
 #include "TFT_eSPI.h"
 
-//#include <WiFiClientSecure.h>
 #include <HTTPClient.h>
-
 #include <ArduinoJson.h>    // Used to parse JSON
 
 #include <esp_sleep.h>    // For deep sleep
@@ -27,11 +25,6 @@ const char* password = "performance15";
 
 // Token provisto por Home Assistant
 const char* Token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJlMmU2N2EzZDIyYjQ0ODU0YjA4ODYyZjg5ZDQwYzYyNSIsImlhdCI6MTc3ODk3MTAzMSwiZXhwIjoyMDk0MzMxMDMxfQ.UjmFtAjzu8UAGPmgjcGxcvusNUAwr422tri7F2RSYWg"; 
-
-// Home Assistant endpoint
-// Asegurarse que la IP no cambie
-String endpoint = String("http://192.168.100.142:8123/api/states/sensor.calidad_de_aire_carbon_dioxide");
-
 
 // Function to put the ESP32 into deep sleep
 void sleepSeconds (uint32_t s) {
@@ -60,6 +53,7 @@ bool connectWiFi(uint32_t timeoutMs) {
   Serial.println();
   return WiFi.status() == WL_CONNECTED;
 }
+// Function to get states from HA
 
 String getHAState(String entity_id) {
   if (WiFi.status() != WL_CONNECTED) {
@@ -150,11 +144,9 @@ void setup() {
   epaper.setTextDatum(MC_DATUM);         // Set centered alignment
 
   epaper.setTextSize (1);
-  //epaper.drawString ("Air Quality ", epaper.width()/2,50);
 
   // Load background image
   epaper.drawBitmap(0, 0, background, 800, 480, TFT_BLACK);
-  //epaper.pushImage (0,0, 800, 480, (uint16_t *) background);
 
   // Show everything
   epaper.update ();
@@ -164,17 +156,17 @@ void setup() {
 
 // Debería leer 3 veces y si aun asi no lee nada, mostrar "-"
 
-String temp = getHAState("sensor.calidad_de_aire_temperature");
-String hum  = getHAState("sensor.calidad_de_aire_humidity");
-String co2  = getHAState("sensor.calidad_de_aire_carbon_dioxide");
-String hcho = getHAState("sensor.calidad_de_aire_formaldehyde");
-String voc  = getHAState("sensor.calidad_de_aire_volatile_organic_compounds");
+  String temp = getHAState("sensor.calidad_de_aire_temperature");
+  String hum  = getHAState("sensor.calidad_de_aire_humidity");
+  String co2  = getHAState("sensor.calidad_de_aire_carbon_dioxide");
+  String hcho = getHAState("sensor.calidad_de_aire_formaldehyde");
+  String voc  = getHAState("sensor.calidad_de_aire_volatile_organic_compounds");
 
   //Ojo, si se produce un error http en las llamadas de arriba, se resetea el micro.
   //Falta alguna comprobacion
   
   //Test
-  temp = "19";
+  //temp = "19";
 
   epaper.drawString (temp, 90, 290);
   epaper.drawString (hum,  244, 290 );
@@ -183,73 +175,6 @@ String voc  = getHAState("sensor.calidad_de_aire_volatile_organic_compounds");
   epaper.drawString (voc,  710, 290 );
 
   epaper.update ();
-
-/*
-  // Iterate through the JSON calculating day difference
-  // The first one greater than 0 is the next holiday
-
-  bool found = false; 
-
-  for (int i = 0; i < doc.size(); i++) {
-    const char* holiday = doc[i]["date"];
-    const char* name = doc[i]["name"];
-
-    Serial.println(holiday);
-    Serial.println(name);
-
-    int epochDif = stringDateToEpoch (holiday) - epochToday;
-    Serial.println (epochDif);
-
-    if (epochDif >= 0) {   // If it is today, show 0 days
-
-      int daysDif = epochDif / 86400;  // Seconds in a day
-      Serial.println (daysDif);
-      String holidayName = doc[i]["name"];  // Use "name" or "localName"
-   
-      // Select size and font for number of days
-      epaper.setTextSize (3);
-      epaper.setTextFont (7);
-    
-      epaper.drawNumber (daysDif, epaper.width()/2, 220);
-
-      epaper.setTextSize (1);
-      epaper.setFreeFont(&Yellowtail_32);    // Select font
-
-      // Show only the first 30 characters
-      epaper.drawString (removeAccents(holidayName.substring (0,38)), epaper.width()/2, 314);
-      epaper.update ();
-
-      found = true;
-      break;
-    }
-  }
-
-  if (!found) {
-    // There are no more holidays :(
-    
-    // Select size and font for number of days
-    epaper.setTextSize (3);
-    epaper.setTextFont (7);
-    epaper.drawString ("--", epaper.width()/2, 220);
-
-    epaper.setTextSize (1);
-    epaper.setFreeFont(&Yellowtail_32);    // Select font
-    epaper.drawString ("No More Holidays!", epaper.width()/2, 314);
-
-
-    epaper.update ();
-  }
-
-  // Everything is ready, go to sleep until tomorrow
-
-  Serial.println ("Going to sleep...");
-
-  // Delay to allow access from the IDE if necessary.
-  delay (10000);
-
-  //sleepSeconds (seconds2Tomorrow);
-
-  */
 
 }
 
