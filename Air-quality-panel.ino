@@ -23,6 +23,9 @@ EPaper epaper;
 const char* ssid = "LosToloNetwork";
 const char* password = "performance15";
 
+// Tiempo de actualizacion
+const int RefreshTime = 15;
+
 // Token provisto por Home Assistant
 const char* Token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJlMmU2N2EzZDIyYjQ0ODU0YjA4ODYyZjg5ZDQwYzYyNSIsImlhdCI6MTc3ODk3MTAzMSwiZXhwIjoyMDk0MzMxMDMxfQ.UjmFtAjzu8UAGPmgjcGxcvusNUAwr422tri7F2RSYWg"; 
 
@@ -179,7 +182,7 @@ void setup() {
   // Delay to allow access from the IDE if necessary.
   delay (10000);
 
-  sleepSeconds (900);  // 15 minutes
+  sleepSeconds (RefreshTime * 60);
 
 }
 
