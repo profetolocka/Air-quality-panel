@@ -27,7 +27,10 @@ const char* password = "performance15";
 const int RefreshTime = 15;
 
 // Token provided by Home Assistant
-const char* Token = "PASTE_YOUR_HOME_ASSISTANT_LONG_LIVED_ACCESS_TOKEN_HERE"; 
+//const char* Token = "PASTE_YOUR_HOME_ASSISTANT_LONG_LIVED_ACCESS_TOKEN_HERE"; 
+const char* Token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJlMmU2N2EzZDIyYjQ0ODU0YjA4ODYyZjg5ZDQwYzYyNSIsImlhdCI6MTc3ODk3MTAzMSwiZXhwIjoyMDk0MzMxMDMxfQ.UjmFtAjzu8UAGPmgjcGxcvusNUAwr422tri7F2RSYWg"; 
+
+
 
 // Function to put the ESP32 into deep sleep
 void sleepSeconds (uint32_t s) {
@@ -151,20 +154,13 @@ void setup() {
 
   // Access Home Assistant REST API
 
-  // It should try to read 3 times, and if it still cannot read anything, display "-"
-
   String temp = getHAState("sensor.calidad_de_aire_temperature");
   String hum  = getHAState("sensor.calidad_de_aire_humidity");
   String co2  = getHAState("sensor.calidad_de_aire_carbon_dioxide");
   String hcho = getHAState("sensor.calidad_de_aire_formaldehyde");
   String voc  = getHAState("sensor.calidad_de_aire_volatile_organic_compounds");
 
-  // Warning: if an HTTP error occurs in the calls above, the microcontroller resets.
-  // Some kind of check is still missing.
-  
-  // Test
-  //temp = "19";
-
+ 
   epaper.drawString (temp, 90, 290);
   epaper.drawString (hum,  244, 290 );
   epaper.drawNumber (co2.toInt(),  398, 290);
