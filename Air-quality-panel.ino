@@ -23,7 +23,7 @@ EPaper epaper;
 const char* ssid = "LosToloNetwork";
 const char* password = "performance15";
 
-// Refresh time
+// Refresh time (minutes)
 const int RefreshTime = 15;
 
 // Token provided by Home Assistant
@@ -41,7 +41,7 @@ void sleepSeconds (uint32_t s) {
   WiFi.mode(WIFI_OFF);
   
   esp_sleep_enable_timer_wakeup((uint64_t)s * 1000000ULL);
-  //esp_deep_sleep_start();
+  esp_deep_sleep_start();
   delay ((uint64_t)s * 1000000ULL);
 }
 
@@ -149,11 +149,8 @@ void setup() {
   // Load background image
   epaper.drawBitmap(0, 0, background, 800, 480, TFT_BLACK);
 
-  // Show everything
-  epaper.update ();
 
   // Access Home Assistant REST API
-
   String temp = getHAState("sensor.calidad_de_aire_temperature");
   String hum  = getHAState("sensor.calidad_de_aire_humidity");
   String co2  = getHAState("sensor.calidad_de_aire_carbon_dioxide");
